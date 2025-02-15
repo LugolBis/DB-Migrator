@@ -1,0 +1,71 @@
+exemplaire_id;livre_id;statut
+0;0;disponible
+1;1;disponible
+2;2;en réparation
+3;3;disponible
+4;4;disponible
+5;5;en réparation
+6;6;disponible
+7;7;disponible
+8;8;en réparation
+9;9;disponible
+10;10;disponible
+11;11;en réparation
+12;12;disponible
+13;13;disponible
+14;14;en réparation
+15;15;disponible
+16;16;disponible
+17;17;en réparation
+18;18;disponible
+19;19;disponible
+20;20;en réparation
+21;21;disponible
+22;22;disponible
+23;23;en réparation
+24;24;disponible
+25;25;disponible
+26;26;en réparation
+27;27;disponible
+28;28;disponible
+29;29;en réparation
+30;30;disponible
+31;31;disponible
+32;32;en réparation
+33;33;disponible
+34;34;disponible
+35;35;en réparation
+36;36;disponible
+37;37;disponible
+38;38;en réparation
+39;39;disponible
+40;40;disponible
+41;41;en réparation
+42;42;disponible
+43;43;disponible
+44;44;en réparation
+45;45;disponible
+46;46;disponible
+47;47;en réparation
+48;48;disponible
+49;49;disponible
+50;0;en réparation
+51;1;disponible
+52;2;disponible
+53;6;en réparation
+54;10;disponible
+55;16;disponible
+56;37;en réparation
+57;42;disponible
+58;0;disponible
+59;1;en réparation
+60;2;disponible
+61;6;disponible
+62;10;en réparation
+63;16;disponible
+64;37;disponible
+65;42;en réparation
+66;0;disponible
+67;1;disponible
+68;2;en réparation
+69;6;disponible
