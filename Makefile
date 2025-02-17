@@ -31,10 +31,16 @@ metadataRDB:
 	@psql -d bibliotheque -t -A -F "" -f $(CURRENT_DIR)/RDB/meta_data.sql -o meta_data_RDB.json
 	@echo "\nSuccessfully extract and save the meta data of the database."
 
+GDB: initGDB
+
+initGDB:
+	@cypher-shell -a $(ADDRESS) -u $(USERNAME) -p '$(PASSWORD)' -f init.cql
+
 help :
 	@echo "Flags usages :"
-	@echo "RDB 		   : To execute all the commands that manage the relationnal database 'bibliotheque'."
-	@echo "configRDB   : To verify that 'psql' work and that '$(shell whoami)' can connect to PostgreSQL."
-	@echo "initRDB 	   : To drop/create the tables, create the procedures/function and the triggers."
-	@echo "populateRDB : To load the CSV data in the databse."
-	@echo "metadataRDB : To extract and save the metada of the database."
+	@echo
+	@echo "RDB             : To execute all the commands that manage the relationnal database 'bibliotheque'."
+	@echo "|-> configRDB   : To verify that 'psql' work and that '$(shell whoami)' can connect to PostgreSQL."
+	@echo "|-> initRDB     : To drop/create the tables, create the procedures/function and the triggers."
+	@echo "|-> populateRDB : To load the CSV data in the databse."
+	@echo "|-> metadataRDB : To extract and save the metada of the database."
