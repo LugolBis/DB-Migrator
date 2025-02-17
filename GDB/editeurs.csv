@@ -1,20 +1,21 @@
-0,Éditions Gallimard,35 rue Sébastien Bottin, 75007 Paris, France
-1,Penguin Random House,80 Strand, London WC2R 0RL, Royaume-Uni
-2,De Agostini Editore,Via Giovanni da Verrazano 15, 28100 Novara, Italie
-3,Suhrkamp Verlag,Pappelallee 78-79, 10437 Berlin, Allemagne
-4,Editorial Planeta,Av. Diagonal 662-664, 08034 Barcelona, Espagne
-5,HarperCollins,195 Broadway, New York, NY 10007, États-Unis
-6,Actes Sud,18 rue Séguier, 13200 Arles, France
-7,W. W. Norton & Company,500 Fifth Avenue, New York, NY 10110, États-Unis
-8,Gyldendal,Klareboderne 3, 1115 København K, Danemark
-9,Asahi Shimbun Publishing,5-3-2 Tsukiji, Chūō, Tokyo 104-8011, Japon
-10,Editora Record,Rua Argentina 171, São Paulo, Brésil
-11,Alfaguara,Calle Torrelaguna 60, 28043 Madrid, Espagne
-12,Klett-Cotta Verlag,Rotebühlstraße 77, 70178 Stuttgart, Allemagne
-13,Éditions du Seuil,27 rue Jacob, 75006 Paris, France
-14,Oxford University Press,Great Clarendon Street, Oxford OX2 6DP, Royaume-Uni
-15,Ambo Anthos,Herengracht 481, 1017 BT Amsterdam, Pays-Bas
-16,Ad Marginem,105066, Malaya Semenovskaya 28, Moscow, Russie
-17,S. Fischer Verlag,Hedderichstrasse 114, 60596 Frankfurt, Allemagne
-18,Anansi Press,110 Spadina Ave #801, Toronto, ON M5V 2K4, Canada
-19,Juggernaut Books,D-78 Okhla Industrial Area Phase 1, New Delhi 110020, Inde
+editeur_id;nom;adresse
+0;Éditions Gallimard;35 rue Sébastien Bottin, 75007 Paris, France
+1;Penguin Random House;80 Strand, London WC2R 0RL, Royaume-Uni
+2;De Agostini Editore;Via Giovanni da Verrazano 15, 28100 Novara, Italie
+3;Suhrkamp Verlag;Pappelallee 78-79, 10437 Berlin, Allemagne
+4;Editorial Planeta;Av. Diagonal 662-664, 08034 Barcelona, Espagne
+5;HarperCollins;195 Broadway, New York, NY 10007, États-Unis
+6;Actes Sud;18 rue Séguier, 13200 Arles, France
+7;W. W. Norton & Company;500 Fifth Avenue, New York, NY 10110, États-Unis
+8;Gyldendal;Klareboderne 3, 1115 København K, Danemark
+9;Asahi Shimbun Publishing;5-3-2 Tsukiji, Chūō, Tokyo 104-8011, Japon
+10;Editora Record;Rua Argentina 171, São Paulo, Brésil
+11;Alfaguara;Calle Torrelaguna 60, 28043 Madrid, Espagne
+12;Klett-Cotta Verlag;Rotebühlstraße 77, 70178 Stuttgart, Allemagne
+13;Éditions du Seuil;27 rue Jacob, 75006 Paris, France
+14;Oxford University Press;Great Clarendon Street, Oxford OX2 6DP, Royaume-Uni
+15;Ambo Anthos;Herengracht 481, 1017 BT Amsterdam, Pays-Bas
+16;Ad Marginem;105066, Malaya Semenovskaya 28, Moscow, Russie
+17;S. Fischer Verlag;Hedderichstrasse 114, 60596 Frankfurt, Allemagne
+18;Anansi Press;110 Spadina Ave #801, Toronto, ON M5V 2K4, Canada
+19;Juggernaut Books;D-78 Okhla Industrial Area Phase 1, New Delhi 110020, Inde
