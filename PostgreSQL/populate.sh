@@ -21,4 +21,8 @@ function populate {
     psql -d bibliotheque -c "\copy emprunts from '${FILES["emprunts"]}' with (format csv, header true, delimiter ';');"
 }
 
+if [ "$1" != "" ]; then
+    cd $1
+fi
+
 populate

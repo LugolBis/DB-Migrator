@@ -1,14 +1,21 @@
 CURRENT_DIR=$(PWD)
 
-RDB: configRDB initRDB populateRDB metadataRDB
+"": configPython demo
 
-configRDB:
+configPython:
+	python3 manage_env.py
+
+demo: PostgreSQL Neo4j
+
+PostgreSQL: configPostgreSQL initPostgreSQL populatePostgreSQL metadataPostgreSQL
+
+configPostgreSQL:
 	@connection=$$(psql bibliotheque -c 'select current_date;'); \
 	if [ "$$connection" = "" ]; then \
 		createdb bibliotheque; \
 		connection=$$(psql bibliotheque -c 'select current_date;'); \
 		if [ "$$connection" = "" ]; then \
-			echo "\n\nERROR : The configuration of RDB with PostgreSQL doesn't work."; \
+			echo "\n\nERROR : The configuration of PostgreSQL doesn't work."; \
 			echo "Verify that the user '`whoami`' can connect to PostgreSQL and you could try to create the database by yourself."; \
 		else \
 			echo "The Relational Database 'bibliotheque' was successfully created."; \
@@ -17,30 +24,33 @@ configRDB:
 		echo "The Relational Database 'bibliotheque' is ready."; \
 	fi
 
-initRDB:
+initPostgreSQL:
 	@echo "\nDrop and Create the tables :"
-	@psql -d bibliotheque -c "\i $(CURRENT_DIR)/RDB/init.sql"
-	@psql -d bibliotheque -c "\i $(CURRENT_DIR)/RDB/triggers.sql"
-	@psql -d bibliotheque -c "\i $(CURRENT_DIR)/RDB/procedures.sql"
+	@psql -d bibliotheque -c "\i $(CURRENT_DIR)/PostgreSQL/init.sql"
+	@psql -d bibliotheque -c "\i $(CURRENT_DIR)/PostgreSQL/triggers.sql"
+	@psql -d bibliotheque -c "\i $(CURRENT_DIR)/PostgreSQL/procedures.sql"
 	
-populateRDB:
+populatePostgreSQL:
 	@echo "\nPopulate the database :"
-	@cd RDB && chmod +x populate.sh && ./populate.sh
+	@cd PostgreSQL && chmod +x populate.sh && ./populate.sh ../Data/
 
-metadataRDB:
-	@psql -d bibliotheque -t -A -F "" -f $(CURRENT_DIR)/RDB/meta_data.sql -o meta_data_RDB.json
-	@echo "\nSuccessfully extract and save the meta data of the database."
+metadataPostgreSQL:
+	@# @psql -d bibliotheque -t -A -F "" -f $(CURRENT_DIR)/PostgreSQL/meta_data.sql -o meta_data_PostgreSQL.json
+	@# @echo "\nSuccessfully extract and save the meta data of the database."
 
-GDB: initGDB
+Neo4j: initNeo4j
 
-initGDB:
-	@cypher-shell -a $(ADDRESS) -u $(USERNAME) -p '$(PASSWORD)' -f init.cql
+initNeo4j:
+	@# @echo "Example of command for Neo4jcypher-shell -a ADDRESS -u USERNAME -p 'PASSWORD' -f init.cql"
 
 help :
 	@echo "Flags usages :"
 	@echo
-	@echo "RDB             : To execute all the commands that manage the relationnal database 'bibliotheque'."
-	@echo "|-> configRDB   : To verify that 'psql' work and that '$(shell whoami)' can connect to PostgreSQL."
-	@echo "|-> initRDB     : To drop/create the tables, create the procedures/function and the triggers."
-	@echo "|-> populateRDB : To load the CSV data in the databse."
-	@echo "|-> metadataRDB : To extract and save the metada of the database."
+	@echo "PostgreSQL             : To execute all the commands that manage the PostgreSQL database 'bibliotheque'."
+	@echo "|-> configPostgreSQL   : To verify that 'psql' work and that '$(shell whoami)' can connect to PostgreSQL."
+	@echo "|-> initPostgreSQL     : To drop/create the tables, create the procedures/function and the triggers."
+	@echo "|-> populatePostgreSQL : To load the CSV data in the databse."
+	@echo "|-> metadataPostgreSQL : To extract and save the metada of the database."
+	@echo
+	@echo "Neo4j         : To execute all the commands that manage the Neo4j database 'bibliotheque'."
+	@echo "|-> initNeo4j : To drop and detach all the nodes."
