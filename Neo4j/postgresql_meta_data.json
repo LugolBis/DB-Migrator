@@ -1,190 +1,31 @@
 {
     "tables":[
        {
-          "table_name":"utilisateurs",
-          "columns":[
-             {
-                "column_name":"utilisateur_id",
-                "data_type":"integer",
-                "is_nullable":"NO",
-                "column_default":"nextval('utilisateurs_utilisateur_id_seq'::regclass)"
-             },
-             {
-                "column_name":"prenom",
-                "data_type":"character varying",
-                "is_nullable":"NO",
-                "column_default":null
-             },
-             {
-                "column_name":"nom",
-                "data_type":"character varying",
-                "is_nullable":"NO",
-                "column_default":null
-             },
-             {
-                "column_name":"email",
-                "data_type":"character varying",
-                "is_nullable":"NO",
-                "column_default":null
-             },
-             {
-                "column_name":"date_inscription",
-                "data_type":"date",
-                "is_nullable":"YES",
-                "column_default":"CURRENT_DATE"
-             }
-          ],
-          "primary_keys":[
-             "utilisateur_id"
-          ],
-          "foreign_keys":null
-       },
-       {
-          "table_name":"emprunts",
-          "columns":[
-             {
-                "column_name":"emprunt_id",
-                "data_type":"integer",
-                "is_nullable":"NO",
-                "column_default":"nextval('emprunts_emprunt_id_seq'::regclass)"
-             },
-             {
-                "column_name":"utilisateur_id",
-                "data_type":"integer",
-                "is_nullable":"NO",
-                "column_default":null
-             },
-             {
-                "column_name":"exemplaire_id",
-                "data_type":"integer",
-                "is_nullable":"NO",
-                "column_default":null
-             },
-             {
-                "column_name":"date_emprunt",
-                "data_type":"date",
-                "is_nullable":"NO",
-                "column_default":"CURRENT_DATE"
-             },
-             {
-                "column_name":"date_retour",
-                "data_type":"date",
-                "is_nullable":"YES",
-                "column_default":null
-             }
-          ],
-          "primary_keys":[
-             "emprunt_id"
-          ],
-          "foreign_keys":[
-             {
-                "constraint_name":"emprunts_utilisateur_id_fkey",
-                "column_name":"utilisateur_id",
-                "referenced_table":"utilisateurs",
-                "referenced_column":"utilisateur_id"
-             },
-             {
-                "constraint_name":"emprunts_exemplaire_id_fkey",
-                "column_name":"exemplaire_id",
-                "referenced_table":"exemplaires",
-                "referenced_column":"exemplaire_id"
-             }
-          ]
-       },
-       {
           "table_name":"auteurs",
           "columns":[
              {
                 "column_name":"auteur_id",
                 "data_type":"integer",
                 "is_nullable":"NO",
-                "column_default":"nextval('auteurs_auteur_id_seq'::regclass)"
+                "column_default":"nextval('auteurs_auteur_id_seq'::regclass)",
+                "primary_key":true,
+                "foreign_key":null
              },
              {
                 "column_name":"nom",
                 "data_type":"character varying",
                 "is_nullable":"NO",
-                "column_default":null
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":null
              },
              {
                 "column_name":"nationalite",
                 "data_type":"character varying",
                 "is_nullable":"YES",
-                "column_default":null
-             }
-          ],
-          "primary_keys":[
-             "auteur_id"
-          ],
-          "foreign_keys":null
-       },
-       {
-          "table_name":"livres",
-          "columns":[
-             {
-                "column_name":"livre_id",
-                "data_type":"integer",
-                "is_nullable":"NO",
-                "column_default":"nextval('livres_livre_id_seq'::regclass)"
-             },
-             {
-                "column_name":"titre",
-                "data_type":"character varying",
-                "is_nullable":"NO",
-                "column_default":null
-             },
-             {
-                "column_name":"auteur_id",
-                "data_type":"integer",
-                "is_nullable":"NO",
-                "column_default":null
-             },
-             {
-                "column_name":"date_publication",
-                "data_type":"date",
-                "is_nullable":"YES",
-                "column_default":null
-             },
-             {
-                "column_name":"isbn",
-                "data_type":"character varying",
-                "is_nullable":"YES",
-                "column_default":null
-             },
-             {
-                "column_name":"categorie_id",
-                "data_type":"integer",
-                "is_nullable":"NO",
-                "column_default":null
-             },
-             {
-                "column_name":"editeur_id",
-                "data_type":"integer",
-                "is_nullable":"NO",
-                "column_default":null
-             }
-          ],
-          "primary_keys":[
-             "livre_id"
-          ],
-          "foreign_keys":[
-             {
-                "constraint_name":"livres_auteur_id_fkey",
-                "column_name":"auteur_id",
-                "referenced_table":"auteurs",
-                "referenced_column":"auteur_id"
-             },
-             {
-                "constraint_name":"livres_categorie_id_fkey",
-                "column_name":"categorie_id",
-                "referenced_table":"categories",
-                "referenced_column":"categorie_id"
-             },
-             {
-                "constraint_name":"livres_editeur_id_fkey",
-                "column_name":"editeur_id",
-                "referenced_table":"editeurs",
-                "referenced_column":"editeur_id"
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":null
              }
           ]
        },
@@ -195,19 +36,19 @@
                 "column_name":"categorie_id",
                 "data_type":"integer",
                 "is_nullable":"NO",
-                "column_default":"nextval('categories_categorie_id_seq'::regclass)"
+                "column_default":"nextval('categories_categorie_id_seq'::regclass)",
+                "primary_key":true,
+                "foreign_key":null
              },
              {
                 "column_name":"nom",
                 "data_type":"character varying",
                 "is_nullable":"NO",
-                "column_default":null
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":null
              }
-          ],
-          "primary_keys":[
-             "categorie_id"
-          ],
-          "foreign_keys":null
+          ]
        },
        {
           "table_name":"editeurs",
@@ -216,25 +57,106 @@
                 "column_name":"editeur_id",
                 "data_type":"integer",
                 "is_nullable":"NO",
-                "column_default":"nextval('editeurs_editeur_id_seq'::regclass)"
+                "column_default":"nextval('editeurs_editeur_id_seq'::regclass)",
+                "primary_key":true,
+                "foreign_key":null
              },
              {
                 "column_name":"nom",
                 "data_type":"character varying",
                 "is_nullable":"NO",
-                "column_default":null
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":null
              },
              {
                 "column_name":"adresse",
                 "data_type":"character varying",
                 "is_nullable":"YES",
-                "column_default":null
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":null
              }
-          ],
-          "primary_keys":[
-             "editeur_id"
-          ],
-          "foreign_keys":null
+          ]
+       },
+       {
+          "table_name":"livres",
+          "columns":[
+             {
+                "column_name":"livre_id",
+                "data_type":"integer",
+                "is_nullable":"NO",
+                "column_default":"nextval('livres_livre_id_seq'::regclass)",
+                "primary_key":true,
+                "foreign_key":null
+             },
+             {
+                "column_name":"titre",
+                "data_type":"character varying",
+                "is_nullable":"NO",
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":null
+             },
+             {
+                "column_name":"auteur_id",
+                "data_type":"integer",
+                "is_nullable":"NO",
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":[
+                   {
+                      "constraint_name":"livres_auteur_id_fkey",
+                      "referenced_table":"auteurs",
+                      "referenced_column":"auteur_id"
+                   }
+                ]
+             },
+             {
+                "column_name":"date_publication",
+                "data_type":"date",
+                "is_nullable":"YES",
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":null
+             },
+             {
+                "column_name":"isbn",
+                "data_type":"character varying",
+                "is_nullable":"YES",
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":null
+             },
+             {
+                "column_name":"categorie_id",
+                "data_type":"integer",
+                "is_nullable":"NO",
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":[
+                   {
+                      "constraint_name":"livres_categorie_id_fkey",
+                      "referenced_table":"categories",
+                      "referenced_column":"categorie_id"
+                   }
+                ]
+             },
+             {
+                "column_name":"editeur_id",
+                "data_type":"integer",
+                "is_nullable":"NO",
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":[
+                   {
+                      "constraint_name":"livres_editeur_id_fkey",
+                      "referenced_table":"editeurs",
+                      "referenced_column":"editeur_id"
+                   }
+                ]
+             }
+          ]
        },
        {
           "table_name":"exemplaires",
@@ -243,30 +165,133 @@
                 "column_name":"exemplaire_id",
                 "data_type":"integer",
                 "is_nullable":"NO",
-                "column_default":"nextval('exemplaires_exemplaire_id_seq'::regclass)"
+                "column_default":"nextval('exemplaires_exemplaire_id_seq'::regclass)",
+                "primary_key":true,
+                "foreign_key":null
              },
              {
                 "column_name":"livre_id",
                 "data_type":"integer",
                 "is_nullable":"NO",
-                "column_default":null
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":[
+                   {
+                      "constraint_name":"exemplaires_livre_id_fkey",
+                      "referenced_table":"livres",
+                      "referenced_column":"livre_id"
+                   }
+                ]
              },
              {
                 "column_name":"statut",
                 "data_type":"character varying",
                 "is_nullable":"YES",
-                "column_default":null
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":null
              }
-          ],
-          "primary_keys":[
-             "exemplaire_id"
-          ],
-          "foreign_keys":[
+          ]
+       },
+       {
+          "table_name":"utilisateurs",
+          "columns":[
              {
-                "constraint_name":"exemplaires_livre_id_fkey",
-                "column_name":"livre_id",
-                "referenced_table":"livres",
-                "referenced_column":"livre_id"
+                "column_name":"utilisateur_id",
+                "data_type":"integer",
+                "is_nullable":"NO",
+                "column_default":"nextval('utilisateurs_utilisateur_id_seq'::regclass)",
+                "primary_key":true,
+                "foreign_key":null
+             },
+             {
+                "column_name":"prenom",
+                "data_type":"character varying",
+                "is_nullable":"NO",
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":null
+             },
+             {
+                "column_name":"nom",
+                "data_type":"character varying",
+                "is_nullable":"NO",
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":null
+             },
+             {
+                "column_name":"email",
+                "data_type":"character varying",
+                "is_nullable":"NO",
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":null
+             },
+             {
+                "column_name":"date_inscription",
+                "data_type":"date",
+                "is_nullable":"YES",
+                "column_default":"CURRENT_DATE",
+                "primary_key":null,
+                "foreign_key":null
+             }
+          ]
+       },
+       {
+          "table_name":"emprunts",
+          "columns":[
+             {
+                "column_name":"emprunt_id",
+                "data_type":"integer",
+                "is_nullable":"NO",
+                "column_default":"nextval('emprunts_emprunt_id_seq'::regclass)",
+                "primary_key":true,
+                "foreign_key":null
+             },
+             {
+                "column_name":"utilisateur_id",
+                "data_type":"integer",
+                "is_nullable":"NO",
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":[
+                   {
+                      "constraint_name":"emprunts_utilisateur_id_fkey",
+                      "referenced_table":"utilisateurs",
+                      "referenced_column":"utilisateur_id"
+                   }
+                ]
+             },
+             {
+                "column_name":"exemplaire_id",
+                "data_type":"integer",
+                "is_nullable":"NO",
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":[
+                   {
+                      "constraint_name":"emprunts_exemplaire_id_fkey",
+                      "referenced_table":"exemplaires",
+                      "referenced_column":"exemplaire_id"
+                   }
+                ]
+             },
+             {
+                "column_name":"date_emprunt",
+                "data_type":"date",
+                "is_nullable":"NO",
+                "column_default":"CURRENT_DATE",
+                "primary_key":null,
+                "foreign_key":null
+             },
+             {
+                "column_name":"date_retour",
+                "data_type":"date",
+                "is_nullable":"YES",
+                "column_default":null,
+                "primary_key":null,
+                "foreign_key":null
              }
           ]
        }

@@ -150,6 +150,16 @@ class Neo4j:
         
         for table in CONSTRAINTS["tables"]:
             LABEL = table["table_name"].upper()
+            function_name = ""
+
+            FOREIGN_KEYS = []
+
+            # Create constraints to translate these concepts : PrimaryKey / Isn't NULL
+            for column in table["columns"]:
+                if column["primary_key"] != None:
+                    self.execute_query(f"create constraint unique_{LABEL.lower()}_{column['column_name']} if not exists for (n:{LABEL})\
+                        require n.{column['column_name']} is unique;")
+            """
             PRIMARY_KEYS = set(pf for pf in table["primary_keys"])
             FOREIGN_KEYS = []
             FOREIGN_COLUMN = set()
@@ -167,7 +177,8 @@ class Neo4j:
                     if column["is_nullable"] == "NO":
                         self.execute_query(f"create constraint nonull_{LABEL.lower()}_{column['column_name']} if not exists for (n:{LABEL})\
                             require n.{column['column_name']} is not null;")
-
+            """
+            
 if __name__ == "__main__":
 
     db_neo4j = Neo4j("neo4j://localhost:7687", "neo4j", "LUGOL2656", "neo4j")
@@ -184,9 +195,10 @@ if __name__ == "__main__":
 
         function_name="export_db_to_json"
 
-        #db_postgresql.export_meta_data(script1_path,save1_path)
-        #db_postgresql.export_tables(script2_path,function_name,save2_path)
+        db_postgresql.export_meta_data(script1_path,save1_path)
+        db_postgresql.export_tables(script2_path,function_name,save2_path)
 
+        return
         #db_neo4j.open()
         #db_neo4j.reset()
         #db_neo4j.close()
