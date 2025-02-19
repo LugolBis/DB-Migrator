@@ -1,6 +1,97 @@
 {
     "tables":[
        {
+          "table_name":"utilisateurs",
+          "columns":[
+             {
+                "column_name":"utilisateur_id",
+                "data_type":"integer",
+                "is_nullable":"NO",
+                "column_default":"nextval('utilisateurs_utilisateur_id_seq'::regclass)"
+             },
+             {
+                "column_name":"prenom",
+                "data_type":"character varying",
+                "is_nullable":"NO",
+                "column_default":null
+             },
+             {
+                "column_name":"nom",
+                "data_type":"character varying",
+                "is_nullable":"NO",
+                "column_default":null
+             },
+             {
+                "column_name":"email",
+                "data_type":"character varying",
+                "is_nullable":"NO",
+                "column_default":null
+             },
+             {
+                "column_name":"date_inscription",
+                "data_type":"date",
+                "is_nullable":"YES",
+                "column_default":"CURRENT_DATE"
+             }
+          ],
+          "primary_keys":[
+             "utilisateur_id"
+          ],
+          "foreign_keys":null
+       },
+       {
+          "table_name":"emprunts",
+          "columns":[
+             {
+                "column_name":"emprunt_id",
+                "data_type":"integer",
+                "is_nullable":"NO",
+                "column_default":"nextval('emprunts_emprunt_id_seq'::regclass)"
+             },
+             {
+                "column_name":"utilisateur_id",
+                "data_type":"integer",
+                "is_nullable":"NO",
+                "column_default":null
+             },
+             {
+                "column_name":"exemplaire_id",
+                "data_type":"integer",
+                "is_nullable":"NO",
+                "column_default":null
+             },
+             {
+                "column_name":"date_emprunt",
+                "data_type":"date",
+                "is_nullable":"NO",
+                "column_default":"CURRENT_DATE"
+             },
+             {
+                "column_name":"date_retour",
+                "data_type":"date",
+                "is_nullable":"YES",
+                "column_default":null
+             }
+          ],
+          "primary_keys":[
+             "emprunt_id"
+          ],
+          "foreign_keys":[
+             {
+                "constraint_name":"emprunts_utilisateur_id_fkey",
+                "column_name":"utilisateur_id",
+                "referenced_table":"utilisateurs",
+                "referenced_column":"utilisateur_id"
+             },
+             {
+                "constraint_name":"emprunts_exemplaire_id_fkey",
+                "column_name":"exemplaire_id",
+                "referenced_table":"exemplaires",
+                "referenced_column":"exemplaire_id"
+             }
+          ]
+       },
+       {
           "table_name":"auteurs",
           "columns":[
              {
@@ -21,6 +112,9 @@
                 "is_nullable":"YES",
                 "column_default":null
              }
+          ],
+          "primary_keys":[
+             "auteur_id"
           ],
           "foreign_keys":null
        },
@@ -70,6 +164,9 @@
                 "column_default":null
              }
           ],
+          "primary_keys":[
+             "livre_id"
+          ],
           "foreign_keys":[
              {
                 "constraint_name":"livres_auteur_id_fkey",
@@ -107,6 +204,9 @@
                 "column_default":null
              }
           ],
+          "primary_keys":[
+             "categorie_id"
+          ],
           "foreign_keys":null
        },
        {
@@ -130,6 +230,9 @@
                 "is_nullable":"YES",
                 "column_default":null
              }
+          ],
+          "primary_keys":[
+             "editeur_id"
           ],
           "foreign_keys":null
        },
@@ -155,97 +258,15 @@
                 "column_default":null
              }
           ],
+          "primary_keys":[
+             "exemplaire_id"
+          ],
           "foreign_keys":[
              {
                 "constraint_name":"exemplaires_livre_id_fkey",
                 "column_name":"livre_id",
                 "referenced_table":"livres",
                 "referenced_column":"livre_id"
-             }
-          ]
-       },
-       {
-          "table_name":"utilisateurs",
-          "columns":[
-             {
-                "column_name":"utilisateur_id",
-                "data_type":"integer",
-                "is_nullable":"NO",
-                "column_default":"nextval('utilisateurs_utilisateur_id_seq'::regclass)"
-             },
-             {
-                "column_name":"prenom",
-                "data_type":"character varying",
-                "is_nullable":"NO",
-                "column_default":null
-             },
-             {
-                "column_name":"nom",
-                "data_type":"character varying",
-                "is_nullable":"NO",
-                "column_default":null
-             },
-             {
-                "column_name":"email",
-                "data_type":"character varying",
-                "is_nullable":"NO",
-                "column_default":null
-             },
-             {
-                "column_name":"date_inscription",
-                "data_type":"date",
-                "is_nullable":"YES",
-                "column_default":"CURRENT_DATE"
-             }
-          ],
-          "foreign_keys":null
-       },
-       {
-          "table_name":"emprunts",
-          "columns":[
-             {
-                "column_name":"emprunt_id",
-                "data_type":"integer",
-                "is_nullable":"NO",
-                "column_default":"nextval('emprunts_emprunt_id_seq'::regclass)"
-             },
-             {
-                "column_name":"utilisateur_id",
-                "data_type":"integer",
-                "is_nullable":"NO",
-                "column_default":null
-             },
-             {
-                "column_name":"exemplaire_id",
-                "data_type":"integer",
-                "is_nullable":"NO",
-                "column_default":null
-             },
-             {
-                "column_name":"date_emprunt",
-                "data_type":"date",
-                "is_nullable":"NO",
-                "column_default":"CURRENT_DATE"
-             },
-             {
-                "column_name":"date_retour",
-                "data_type":"date",
-                "is_nullable":"YES",
-                "column_default":null
-             }
-          ],
-          "foreign_keys":[
-             {
-                "constraint_name":"emprunts_utilisateur_id_fkey",
-                "column_name":"utilisateur_id",
-                "referenced_table":"utilisateurs",
-                "referenced_column":"utilisateur_id"
-             },
-             {
-                "constraint_name":"emprunts_exemplaire_id_fkey",
-                "column_name":"exemplaire_id",
-                "referenced_table":"exemplaires",
-                "referenced_column":"exemplaire_id"
              }
           ]
        }
@@ -266,6 +287,12 @@
        }
     ],
     "functions":[
+       {
+          "function_name":"export_db_to_json",
+          "return_type":"jsonb",
+          "arguments":"jsonb",
+          "definition":"CREATE OR REPLACE FUNCTION public.export_db_to_json()\n RETURNS jsonb\n LANGUAGE plpgsql\nAS $function$\nDECLARE\n  rec record;\n  table_json jsonb;\n  result jsonb := '{}'::jsonb;\nBEGIN\n  FOR rec IN\n    SELECT table_schema, table_name\n    FROM information_schema.tables\n    WHERE table_schema NOT IN ('pg_catalog', 'information_schema')\n      AND table_name NOT IN ('users', 'technical_details', 'metadata')\n  LOOP\n    EXECUTE format(\n      'SELECT COALESCE(JSONB_AGG(ROW_TO_JSON(t)::jsonb), ''[]''::jsonb) FROM %I.%I t',\n      rec.table_schema, rec.table_name\n    )\n    INTO table_json;\n    \n    result := result || jsonb_build_object(rec.table_name, table_json);\n  END LOOP;\n  \n  RETURN result;\nEND;\n$function$\n"
+       },
        {
           "function_name":"verifier_disponibilite",
           "return_type":"trigger",

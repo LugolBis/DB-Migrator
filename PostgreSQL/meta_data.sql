@@ -14,6 +14,16 @@ WITH tables_info AS (
                 FROM information_schema.columns cols
                 WHERE cols.table_name = c.table_name AND cols.table_schema = 'public'
             ),
+            'primary_keys', (
+                SELECT json_agg(kcu.column_name)
+                FROM information_schema.table_constraints tc
+                JOIN information_schema.key_column_usage kcu 
+                  ON tc.constraint_name = kcu.constraint_name 
+                  AND tc.table_schema = kcu.table_schema
+                WHERE tc.table_name = c.table_name 
+                  AND tc.table_schema = 'public'
+                  AND tc.constraint_type = 'PRIMARY KEY'
+            ),
             'foreign_keys', (
                 SELECT json_agg(
                     json_build_object(

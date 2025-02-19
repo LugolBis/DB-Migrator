@@ -6,8 +6,17 @@
 // Création d'une contrainte d'unicité pour l'id (à exécuter une fois)
 CREATE CONSTRAINT unique_editeur_id IF NOT EXISTS 
 FOR (e:Editeur) 
-REQUIRE e.id IS UNIQUE and not nullable;
+REQUIRE e.id IS UNIQUE;
 
+CREATE CONSTRAINT nonull_editeur_id IF NOT EXISTS 
+FOR (e:Editeur) 
+REQUIRE e.id IS not null;
+
+CALL apoc.periodic.iterate(
+  'CALL apoc.load.json("file:///big_data.json") YIELD value RETURN value',
+  'CREATE (n:Node) SET n = value',
+  {batchSize: 10000, parallel: true}
+);
 
 /*
 LOAD CSV FROM 'https://cdn.jsdelivr.net/gh/LugolBis/DB-Migrator@master/Data/editeurs.csv' AS line

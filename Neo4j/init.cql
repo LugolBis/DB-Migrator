@@ -1,3 +1,11 @@
-// Delete all nodes and relationships
+// Reset the database
+
+// Delete the Label from each node
+match (n)
+unwind labels(n) as label
+remove n:`label`
+return n;
+
+// Delete all the nodes and their arcs
 match (n)
 detach delete n;
