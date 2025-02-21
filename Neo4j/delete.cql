@@ -9,3 +9,6 @@ return n;
 // Delete all the nodes and their arcs
 match (n)
 detach delete n;
+
+// Delete all constraints
+call apoc.schema.assert({}, {});

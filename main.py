@@ -114,6 +114,32 @@ class Neo4j:
         with open(script_path, "r") as fs:
             query = fs.read()
         self.execute_query(query)
+
+    def convert_PostgreSQL_type(type:str):
+        """Convert PostgreSQL Type into Neo4j type.\n
+        CAUTION : TIMESTAMP -> DATETIME ; MONEY -> FLOAT"""
+        type = type.upper()
+        match type:
+            case "INTEGER" | "BIGINT" | "SERIAL" : return "INTEGER"
+            case "REAL" | "DOUBLE" | "PRECISION" : return "FLOAT"
+            case "NUMERIC" | "DECIMAL" : return "FLOAT"
+            case "VARCHAR" | "TEXT" | "CHAR" : return "STRING"
+            case "BOOLEAN" : return "BOOLEAN"
+            case "DATE" : return "DATE"
+            case "TIME" : return "LOCALTIME"
+            case "TIMESTAMP" : return "DATETIME"
+            case "INTERVAL" : return "DURATION"
+            case "JSON" | "JSONB" : return "MAP"
+            case "UUID" : return "STRING"
+            case "ARRAY" : return "LIST"
+            case "BYTEA" : return "BYTES"
+            case "ENUM" : return "STRING"
+            case "POINT" | "POLYGON" : return "STRING"
+            case "CIDR" | "INET" : return "STRING"
+            case "MONEY" : return "FLOAT"
+            case "XML" : return "STRING" 
+            case _:print(f"ERROR : Try to convert an unknow PostgreSQL type into a Neo4j\
+                type.\nType in input : {type}"); raise
     
     def load_from_CSV(self, file_path:str, separator:str):
         """This function only create the nodes contained in the file.\n
@@ -132,6 +158,12 @@ class Neo4j:
                 query = query[:-1] ; query += "});"
                 self.execute_query(query)
         print(f"\nSuccessfully load the data from '{file_path}'.")
+
+    def load_with_admin(self,import_dir_path:str):
+        """CAUTION : This method need some configurations and specific version of Neo4j.\n
+        This function use the input path to import the data withe the following command :\n
+        ../bin/neo4j-admin database import full <database> --nodes=..."""
+        pass
 
     def load_from_postgresql(
         self, db_postgresql:PostgreSQL, meta_data_script:str, save1_path:str,
@@ -159,6 +191,22 @@ class Neo4j:
                 if column["primary_key"] != None:
                     self.execute_query(f"create constraint unique_{LABEL.lower()}_{column['column_name']} if not exists for (n:{LABEL})\
                         require n.{column['column_name']} is unique;")
+                if column["is_nullable"] == "NO":
+                        self.execute_query(f"create constraint nonull_{LABEL.lower()}_{column['column_name']} if not exists for (n:{LABEL})\
+                            require n.{column['column_name']} is not null;")
+                        
+                        # Note importante /!\ -----------------------------------------------
+                        # L'ajout d'une contrainte 'not null' altère le type de la property
+                        # Exemple -> (a:Actor) tq a.name is NOT NULL
+                        # -> valueType(a.name) = "STRING NOT NULL" 
+                else:
+                    # Contrainte de Type sans le "NOT NULL"
+                    pass 
+
+            # Générer un fichier JSON contenant les HEADERS des Label et de leurs relations
+            # Pour cela on va regrouper les foreign keys par table référencée dans un dictionnaire
+            # Afin de regrouper les colonnes -> properties d'une relation allant de la table A vers la table B           
+
             """
             PRIMARY_KEYS = set(pf for pf in table["primary_keys"])
             FOREIGN_KEYS = []
@@ -181,7 +229,7 @@ class Neo4j:
             
 if __name__ == "__main__":
 
-    db_neo4j = Neo4j("neo4j://localhost:7687", "neo4j", "LUGOL2656", "neo4j")
+    db_neo4j = Neo4j("neo4j://localhost:7687", "userA", "password", "userTest")
     db_postgresql = PostgreSQL("127.0.0.1","5432","lugolbis","LUGOL2656","bibliotheque")
 
     def demo():
@@ -195,13 +243,10 @@ if __name__ == "__main__":
 
         function_name="export_db_to_json"
 
-        db_postgresql.export_meta_data(script1_path,save1_path)
-        db_postgresql.export_tables(script2_path,function_name,save2_path)
+        #db_postgresql.export_meta_data(script1_path,save1_path)
+        #db_postgresql.export_tables(script2_path,function_name,save2_path)
 
         return
-        #db_neo4j.open()
-        #db_neo4j.reset()
-        #db_neo4j.close()
         db_neo4j.open()
         db_neo4j.execute_query("match (n:Product) return n;\n match (n) detach delete n;")
         #db_neo4j.load_from_postgresql(db_postgresql, script1_path, save1_path, script2_path, function_name, save2_path)
