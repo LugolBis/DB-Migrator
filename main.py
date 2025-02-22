@@ -123,7 +123,7 @@ class Neo4j:
             case "INTEGER" | "BIGINT" | "SERIAL" : return "INTEGER"
             case "REAL" | "DOUBLE" | "PRECISION" : return "FLOAT"
             case "NUMERIC" | "DECIMAL" : return "FLOAT"
-            case "VARCHAR" | "TEXT" | "CHAR" : return "STRING"
+            case "VARCHAR" | "TEXT" | "CHAR" | "CHARACTER VARYING" : return "STRING"
             case "BOOLEAN" : return "BOOLEAN"
             case "DATE" : return "DATE"
             case "TIME" : return "LOCALTIME"
@@ -165,6 +165,72 @@ class Neo4j:
         ../bin/neo4j-admin database import full <database> --nodes=..."""
         pass
 
+    def create_CSV_headers(self,metadata_file_path:str):
+        with open(metadata_file_path, "r") as fs:
+            CONSTRAINTS = json.load(fs)
+        
+        for table in CONSTRAINTS["tables"]:
+            LABEL = table["table_name"].upper()
+            HEADERS = f":ID;"
+            FOREIGN_KEYS = {} # Key : Table target ; value : Header
+
+            # Create constraints to translate these concepts : PrimaryKey / Isn't NULL
+            for column in table["columns"]:
+                function_name = f"{LABEL.lower()}_{column['column_name']}"
+                if column["primary_key"] != None:
+                    self.execute_query(f"create constraint unique_{function_name} if not exists for (n:{LABEL})\
+                        require n.{column['column_name']} is unique;")
+                if column["is_nullable"] == "NO":
+                        self.execute_query(f"create constraint nonull_{function_name} if not exists for (n:{LABEL})\
+                            require n.{column['column_name']} is not null;")
+                
+                # apoc.trigger.add() ???
+                
+                # Configure the HEADERS for the CSV file
+                fk = column["foreign_key"]
+                if fk == None:
+                    HEADERS += f"{column['column_name']}:{Neo4j.convert_PostgreSQL_type(column['data_type'])};"
+                else:
+                    key = (fk[0]["referenced_table"].upper())
+                    if key in FOREIGN_KEYS.keys():
+                        FOREIGN_KEYS[key].append[(fk[0]["constraint_name"][:-5],fk[0]["referenced_column"])]
+                    else:
+                        FOREIGN_KEYS[key] = [(fk[0]["constraint_name"][:-5],fk[0]["referenced_column"])]
+
+            HEADERS += ":LABEL"
+
+            with open(f"{LABEL}.csv","w") as fd:
+                fd.write(HEADERS)
+
+            if FOREIGN_KEYS != {}:
+                for key, val in FOREIGN_KEYS.items():
+                    HEADERS_FK = ":START_ID;" ; COLUMN_FK = ""
+                    for tuple in val:
+                        HEADERS_FK += f"{tuple[1]};"
+                        COLUMN_FK += f";{tuple[0]}"
+                    HEADERS_FK = HEADERS_FK + ":END_ID;:TYPE" + COLUMN_FK
+                    with open(f"{LABEL}_REF_{key}.csv","w") as fd:
+                        fd.write(HEADERS_FK)
+
+    def extract_nodes(tables_path:str):
+        """Take in input the path of the JSON file that contains the tables of the postgresql content."""
+        with open(tables_path,"r") as fs:
+            TABLES = json.load(fs)
+
+        for table, lines in TABLES.items():
+            LABEL = table.upper()
+            with open(f"{LABEL}.csv", "r") as fs:
+                HEADERS = fs.read().split(";")
+            with open(f"{LABEL}.csv", "a") as fd:
+                counter = 0
+                for line in lines:
+                    new_line = f"\n{LABEL}{counter};"
+                    for property in HEADERS[1:-1]:
+                        new_line += f"{line[property.split(':')[0]]};"
+                    new_line += LABEL
+                    fd.write(new_line)
+                    counter += 1
+
     def load_from_postgresql(
         self, db_postgresql:PostgreSQL, meta_data_script:str, save1_path:str,
         export_tables_script:str, sql_function_name:str, save2_path:str
@@ -177,55 +243,12 @@ class Neo4j:
         db_postgresql.export_meta_data(meta_data_script, save1_path)
         db_postgresql.export_tables(export_tables_script, sql_function_name, save2_path) # il faut récupérer le chemin dans l'export_query
 
-        with open(save1_path, "r") as fs:
-            CONSTRAINTS = json.load(fs)
-        
-        for table in CONSTRAINTS["tables"]:
-            LABEL = table["table_name"].upper()
-            function_name = ""
-
-            FOREIGN_KEYS = []
-
-            # Create constraints to translate these concepts : PrimaryKey / Isn't NULL
-            for column in table["columns"]:
-                if column["primary_key"] != None:
-                    self.execute_query(f"create constraint unique_{LABEL.lower()}_{column['column_name']} if not exists for (n:{LABEL})\
-                        require n.{column['column_name']} is unique;")
-                if column["is_nullable"] == "NO":
-                        self.execute_query(f"create constraint nonull_{LABEL.lower()}_{column['column_name']} if not exists for (n:{LABEL})\
-                            require n.{column['column_name']} is not null;")
-                        
-                        # Note importante /!\ -----------------------------------------------
-                        # L'ajout d'une contrainte 'not null' altère le type de la property
-                        # Exemple -> (a:Actor) tq a.name is NOT NULL
-                        # -> valueType(a.name) = "STRING NOT NULL" 
-                else:
-                    # Contrainte de Type sans le "NOT NULL"
-                    pass 
-
             # Générer un fichier JSON contenant les HEADERS des Label et de leurs relations
             # Pour cela on va regrouper les foreign keys par table référencée dans un dictionnaire
             # Afin de regrouper les colonnes -> properties d'une relation allant de la table A vers la table B           
 
-            """
-            PRIMARY_KEYS = set(pf for pf in table["primary_keys"])
-            FOREIGN_KEYS = []
-            FOREIGN_COLUMN = set()
-            if table["foreign_keys"] != None:
-                for fk in table["foreign_keys"]: FOREIGN_KEYS.append(fk); FOREIGN_COLUMN.add(fk["column_name"])
-            
-            # Create constraints to translate these concepts : PrimaryKey / Isn't NULL
-            for column in table["columns"]:
-                if column["column_name"] in FOREIGN_COLUMN:
-                    continue 
-                else:
-                    if column["column_name"] in PRIMARY_KEYS:
-                        self.execute_query(f"create constraint unique_{LABEL.lower()}_{column['column_name']} if not exists for (n:{LABEL})\
-                            require n.{column['column_name']} is unique;")
-                    if column["is_nullable"] == "NO":
-                        self.execute_query(f"create constraint nonull_{LABEL.lower()}_{column['column_name']} if not exists for (n:{LABEL})\
-                            require n.{column['column_name']} is not null;")
-            """
+        self.create_CSV_headers(save1_path)
+        Neo4j.extract_nodes(save2_path)
             
 if __name__ == "__main__":
 
@@ -246,10 +269,8 @@ if __name__ == "__main__":
         #db_postgresql.export_meta_data(script1_path,save1_path)
         #db_postgresql.export_tables(script2_path,function_name,save2_path)
 
-        return
         db_neo4j.open()
-        db_neo4j.execute_query("match (n:Product) return n;\n match (n) detach delete n;")
-        #db_neo4j.load_from_postgresql(db_postgresql, script1_path, save1_path, script2_path, function_name, save2_path)
+        db_neo4j.load_from_postgresql(db_postgresql, script1_path, save1_path, script2_path, function_name, save2_path)
         db_neo4j.close()
 
     demo()

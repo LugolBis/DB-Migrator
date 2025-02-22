@@ -12,6 +12,19 @@ CREATE CONSTRAINT nonull_editeur_id IF NOT EXISTS
 FOR (e:Editeur) 
 REQUIRE e.id IS not null;
 
+CREATE CONSTRAINT type_LABEL_property if not exists
+FOR (m:Movie)
+REQUIRE valueType(m.year) = "INTEGER";
+
+CALL apoc.trigger.add(
+  'type_LABEL_property',
+  "MATCH (m:Movie) 
+   WHERE m.year IS NOT NULL AND NOT valueType(m.year) = 'LONG'
+   CALL apoc.util.validate(true, 'ERREUR : La propriété year doit être un entier.', [])
+   RETURN m",
+  {phase: 'before'}
+);
+
 CALL apoc.periodic.iterate(
   'CALL apoc.load.json("file:///big_data.json") YIELD value RETURN value',
   'CREATE (n:Node) SET n = value',
