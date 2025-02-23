@@ -2,3 +2,7 @@ db
 *csv
 *json
 env_path.txt
+
+# Added by cargo
+
+/target
