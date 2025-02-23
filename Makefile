@@ -41,7 +41,10 @@ metadataPostgreSQL:
 Neo4j: initNeo4j
 
 initNeo4j:
-	@# @echo "Example of command for Neo4jcypher-shell -a ADDRESS -u USERNAME -p 'PASSWORD' -f init.cql"
+	@echo
+	@echo "Assert that your Neo4j database is started."
+	@echo
+	@db/bin/python main.py
 
 help :
 	@echo "Flags usages :"
@@ -53,4 +56,4 @@ help :
 	@echo "|-> metadataPostgreSQL : To extract and save the metada of the database."
 	@echo
 	@echo "Neo4j         : To execute all the commands that manage the Neo4j database 'bibliotheque'."
-	@echo "|-> initNeo4j : To drop and detach all the nodes."
+	@echo "|-> initNeo4j : To run the Python script 'main.py'"
