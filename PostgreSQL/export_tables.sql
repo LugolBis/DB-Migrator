@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION export_db_to_json()
+CREATE OR REPLACE FUNCTION export_tables_to_json()
 RETURNS jsonb AS
 $$
 DECLARE

@@ -1,7 +1,10 @@
-CREATE OR REPLACE FUNCTION export_tables_metadata()
+CREATE OR REPLACE FUNCTION get_database_metadata()
 RETURNS JSON AS $$
 DECLARE
     tables_metadata_json JSON;
+    triggers_metadata_json JSON;
+    procedures_metadata_json JSON;
+    functions_metadata_json JSON;
 BEGIN
     -- Récupérer les métadonnées des tables, triggers, procédures et fonctions en une seule requête
     WITH tables_info AS (
@@ -52,12 +55,60 @@ BEGIN
         FROM information_schema.tables c
         JOIN pg_class pgc ON c.table_name = pgc.relname
         WHERE c.table_schema = 'public'
+    ),
+    
+    triggers_info AS (
+        SELECT json_agg(
+            json_build_object(
+                'trigger_name', tg.tgname,
+                'event', pg_get_triggerdef(tg.oid),
+                'table_name', rel.relname
+            )
+        ) AS triggers_metadata
+        FROM pg_trigger tg
+        JOIN pg_class rel ON tg.tgrelid = rel.oid
+        WHERE NOT tg.tgisinternal
+    ),
+    
+    procedures_info AS (
+        SELECT json_agg(
+            json_build_object(
+                'procedure_name', p.proname,
+                'return_type', t.typname,
+                'arguments', pg_catalog.pg_get_function_result(p.oid),
+                'definition', pg_catalog.pg_get_functiondef(p.oid)
+            )
+        ) AS procedures_metadata
+        FROM pg_proc p
+        JOIN pg_namespace n ON p.pronamespace = n.oid
+        JOIN pg_type t ON p.prorettype = t.oid
+        WHERE n.nspname = 'public' AND p.prokind = 'p'
+    ),
+    
+    functions_info AS (
+        SELECT json_agg(
+            json_build_object(
+                'function_name', p.proname,
+                'return_type', t.typname,
+                'arguments', pg_catalog.pg_get_function_result(p.oid),
+                'definition', pg_catalog.pg_get_functiondef(p.oid)
+            )
+        ) AS functions_metadata
+        FROM pg_proc p
+        JOIN pg_namespace n ON p.pronamespace = n.oid
+        JOIN pg_type t ON p.prorettype = t.oid
+        WHERE n.nspname = 'public' AND p.prokind = 'f'
     )
     
-    SELECT tables_metadata 
-    INTO tables_metadata_json
-    FROM tables_info;
+    SELECT tables_metadata, triggers_metadata, procedures_metadata, functions_metadata 
+    INTO tables_metadata_json, triggers_metadata_json, procedures_metadata_json, functions_metadata_json
+    FROM tables_info, triggers_info, procedures_info, functions_info;
     
-    RETURN tables_metadata_json;
+    RETURN json_build_object(
+        'tables', tables_metadata_json,
+        'triggers', triggers_metadata_json,
+        'procedures', procedures_metadata_json,
+        'functions', functions_metadata_json
+    );
 END;
 $$ LANGUAGE plpgsql;
