@@ -1,5 +1,5 @@
 [package]
-name = "IN608"
+name = "DB-Migrator"
 version = "0.1.0"
 edition = "2021"
 

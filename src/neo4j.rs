@@ -3,6 +3,7 @@ use serde_json::Value;
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::Path;
+use std::env;
 use std::fs;
 
 #[derive(Debug)]
@@ -65,10 +66,10 @@ impl Neo4j {
         }
     }
 
-    pub fn convert_PostgreSQL_type(postgreSQL_type:&str) -> Result<String, String> {
+    pub fn convert_postgresql_type(postgresql_type:&str) -> Result<String, String> {
         //! Convert PostgreSQL Type into Neo4j type.<br>
         //! CAUTION : TIMESTAMP -> DATETIME ; MONEY -> FLOAT
-        let target_type = postgreSQL_type.to_uppercase();
+        let target_type = postgresql_type.to_uppercase();
         match target_type.as_str() {
             "INTEGER" | "BIGINT" | "SERIAL" => Ok("INT".to_string()),
             "REAL" | "DOUBLE" | "PRECISION" => Ok("FLOAT".to_string()),
@@ -93,7 +94,10 @@ impl Neo4j {
     }
 
     pub fn load_with_admin(&self) -> Result<String, String> {
-        todo!();
+        if let Err(error) = env::set_current_dir(Path::new(&self.import_directory)) {
+            return Err(format!("{}",error));
+        }
+
         let mut command = Command::new("../bin/neo4j-admin");
         command.args(["database","import","full",&self.database]);
 
@@ -118,10 +122,8 @@ impl Neo4j {
                 for relationship in relationships {
                     command.arg(format!("--relationships={}",relationship));
                 }
-                command.arg("--delimiter=';'"); command.arg("--array-delimiter=','");
-                command.arg("--overwrite-destination");
+                command.args(["--delimiter=;", "--array-delimiter=,", "--overwrite-destination", "--verbose"]);
 
-                println!("Command Executed :\n{:?}\n",command.get_program());
                 let output = command.output();
                 match output {
                     Ok(output) => {
@@ -147,6 +149,10 @@ impl Neo4j {
     }
 
     pub fn create_csv_headers(&self,meta_data_path:&str) -> Result<String, String> {
+        if let Err(error) = clean_directory(&self.import_directory) {
+            return Err(error);
+        }
+
         let content = fs::read_to_string(meta_data_path)
             .map_err(|error| format!("{}",error))?;
 
@@ -193,7 +199,7 @@ impl Neo4j {
                             Value::Null => {
                                 let pg_data_type = column["data_type"].as_str()
                                     .ok_or_else(|| format!("Error when try to get the 'data_type' field in {}",column))?;
-                                let data_type = Neo4j::convert_PostgreSQL_type(pg_data_type)
+                                let data_type = Neo4j::convert_postgresql_type(pg_data_type)
                                     .map_err(|error| format!("{}",error))?;
                                 headers.push_str(&format!("{}:{};",column_name,data_type));
                             },
@@ -316,4 +322,23 @@ impl Neo4j {
         }
         Ok("Successfully extract the edges and store them in the CSV files !".to_string())
     }
+}
+
+fn clean_directory(folder_path:&str) -> Result<String, String> {
+    //! Delete all the CSV files in the folder in input.
+    let entries = fs::read_dir(folder_path)
+        .map_err(|error| format!("{}",error))?;
+
+    for entry in entries {
+        let entry = entry.map_err(|error| format!("{}",error))?;
+        let path = entry.path();
+        if path.is_file() {
+            if let Some(ext) = path.extension() {
+                if ext == "csv" {
+                    fs::remove_file(&path).map_err(|error|format!("{}",error))?;
+                }
+            }
+        }
+    }
+    Ok("Successfully clean the directory !".to_string())
 }

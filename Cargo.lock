@@ -3,7 +3,7 @@
 version = 4
 
 [[package]]
-name = "IN608"
+name = "DB-Migrator"
 version = "0.1.0"
 dependencies = [
  "serde_json",

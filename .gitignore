@@ -1,6 +1,6 @@
 db
 *csv
-env_path.txt
+env.txt
 
 # Added by cargo
 /target
