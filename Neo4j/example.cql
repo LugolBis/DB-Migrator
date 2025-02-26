@@ -1,3 +1,6 @@
+// Some test with cypher and apoc.
+// This script is never used in the final project.
+
 CREATE (charlie:Person:Actor {name: 'Charlie Sheen'}),
        (martin:Person:Actor {name: 'Martin Sheen'}),
        (michael:Person:Actor {name: 'Michael Douglas'}),

@@ -8,6 +8,7 @@ fn main() {
 fn demo() {
     use postgresql::PostgreSQL;
     use neo4j::Neo4j;
+    use std::io;
     
     // PostgreSQL part
 
@@ -26,7 +27,7 @@ fn demo() {
     let function_fk = "export_fk_relationships";
     let save_fk = "/home/lugolbis/Bureau/UVSQ/L3_Info/S6/DB-Migrator/Neo4j/postgresql_fk.json";
 
-    /* 
+
     match db_postgresql.export_from_sql(script_meta_data,function_meta_data,save_meta_data) {
         Ok(_) => println!("Successfuly export meta data !"),
         Err(result) => println!("ERROR when try to export meta data :\n{}",result),
@@ -40,7 +41,7 @@ fn demo() {
     match db_postgresql.export_from_sql(script_fk,function_fk,save_fk) {
         Ok(_) => println!("Successfuly export foreign keys !"),
         Err(result) => println!("ERROR when try to export foreign keys :\n{}",result),
-    }*/
+    }
 
     // Neo4j
 
@@ -49,7 +50,6 @@ fn demo() {
 
     let script_delete = "/home/lugolbis/Bureau/UVSQ/L3_Info/S6/DB-Migrator/Neo4j/delete.cql";
 
-    /*
     match db_neo4j.execute_script(script_delete) {
         Ok(result) => println!("{}", result),
         Err(result) => println!("{}",result)
@@ -68,10 +68,20 @@ fn demo() {
     match db_neo4j.extract_edges(save_fk) {
         Ok(result) => println!("{}", result),
         Err(result) => println!("{}",result)
-    }*/
+    }
 
-    match db_neo4j.load_with_admin() {
-        Ok(result) => println!("{}", result),
-        Err(result) => println!("{}",result)
+    println!("Please stop your Neo4j database to process the import.\nWhen this is done enter 'YES' below :\n");
+    let mut user_input = String::new();
+    io::stdin().read_line(&mut user_input)
+        .expect("Error when try to read the user input.");
+
+    if user_input.trim() == "YES" {
+        match db_neo4j.load_with_admin() {
+            Ok(result) => println!("{}", result),
+            Err(result) => println!("{}",result)
+        }
+    }
+    else {
+        println!("Ok, you could done the import later with the method '.load_with_admin' of the struct 'Neo4j'.")
     }
 }

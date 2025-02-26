@@ -1,9 +1,6 @@
-// Example
+// This is just experimentation.
+// It could be usefull to give you some ideas.
 
-// Le Chargement massif avec des données locales pose des problèmes de configurations/sécuritées
-// difficles à automatiser
-
-// Création d'une contrainte d'unicité pour l'id (à exécuter une fois)
 CREATE CONSTRAINT unique_editeur_id IF NOT EXISTS 
 FOR (e:Editeur) 
 REQUIRE e.id IS UNIQUE;

@@ -12,14 +12,14 @@ pub struct Neo4j {
     username : String,
     password : String,
     database : String,
-    import_directory : String
+    import_folder : String
 }
 
 impl Neo4j {
-    pub fn new(uri:&str,username:&str,password:&str,database : &str,import_directory : &str) -> Self {
+    pub fn new(uri:&str,username:&str,password:&str,database : &str,import_folder : &str) -> Self {
         Self { 
             uri: uri.to_string(), username: username.to_string(), password: password.to_string(),
-            database: database.to_string(), import_directory: import_directory.to_string()
+            database: database.to_string(), import_folder: import_folder.to_string()
         }
     }
 
@@ -46,7 +46,7 @@ impl Neo4j {
     }
 
     pub fn execute_script(&self,script_path:&str) -> Result<String, String> {
-        //! The path of the script need to be the reel path (not the relative path).
+        //! The path of the Cypher script need to be the reel path (not the relative path).
         let output = Command::new("cypher-shell")
             .arg("-a").arg(&self.uri)
             .arg("-u").arg(&self.username)
@@ -94,14 +94,21 @@ impl Neo4j {
     }
 
     pub fn load_with_admin(&self) -> Result<String, String> {
-        if let Err(error) = env::set_current_dir(Path::new(&self.import_directory)) {
+        //! This method perform the 'neo4j-admin import' from the ```&self.import_folder```<br><br>
+        //! **WARNING** : This method construct the command 'neo4j-admin import' by detecting <br>
+        //! the **CSV** files in the folder, you need to assert that there isn't other CSV files <br>
+        //! than these you need for the import. Moreover assert that the CSV files who are contain the <br>
+        //! *relationships* have '_REF_' in their name.
+        if let Err(error) = env::set_current_dir(Path::new(&self.import_folder)) {
             return Err(format!("{}",error));
         }
 
-        let mut command = Command::new("../bin/neo4j-admin");
+        let mut command:Command;
+        if cfg!(target_os = "windows") { command = Command::new("bin\neo4j-admin.bat"); }
+        else { command = Command::new("../bin/neo4j-admin"); }
         command.args(["database","import","full",&self.database]);
 
-        let path = Path::new(&self.import_directory);
+        let path = Path::new(&self.import_folder);
         let mut nodes: Vec<String> = Vec::new();
         let mut relationships: Vec<String> = Vec::new();
         match fs::read_dir(path) {
@@ -149,7 +156,9 @@ impl Neo4j {
     }
 
     pub fn create_csv_headers(&self,meta_data_path:&str) -> Result<String, String> {
-        if let Err(error) = clean_directory(&self.import_directory) {
+        //! Generate **CSV** files who contains the **HEADERS** needed to generate and organise the
+        //! data to be imported to Neo4j.
+        if let Err(error) = clean_directory(&self.import_folder) {
             return Err(error);
         }
 
@@ -216,7 +225,7 @@ impl Neo4j {
                     }
                     
                     headers.push_str(":LABEL");
-                    let file_path = format!("{}{}.csv",self.import_directory,label);
+                    let file_path = format!("{}{}.csv",self.import_folder,label);
                     let mut file = OpenOptions::new().write(true).create(true).open(&file_path)
                         .map_err(|error| format!("{}",error))?;
                     match file.write_all(&headers.as_bytes()) {
@@ -226,7 +235,7 @@ impl Neo4j {
 
                     const HEADERS_FK:&str = ":START_ID;:END_ID;:TYPE";
                     for fk in foreign_keys {
-                        let file_path = format!("{}{}_REF_{}.csv",self.import_directory,label,fk);
+                        let file_path = format!("{}{}_REF_{}.csv",self.import_folder,label,fk);
                         let mut file = OpenOptions::new().write(true).create(true).open(&file_path)
                             .map_err(|error| format!("{}",error))?;
                         match file.write_all(HEADERS_FK.as_bytes()) {
@@ -242,6 +251,9 @@ impl Neo4j {
     }
 
     pub fn extract_nodes(&self,tables_path:&str) -> Result<String, String> {
+        //! Read the JSON file that contains all the lines of the PostgreSQL database and save them <br>
+        //! in the CSV files in the the import folder. <br><br>
+        //! **WARNING** this method need to be used after ```&self.extract_csv_headers(...)```
         let content = fs::read_to_string(tables_path)
             .map_err(|error| format!("{}",error))?;
 
@@ -257,7 +269,7 @@ impl Neo4j {
                 .ok_or_else(|| format!("The following json object is not a map :\n{}",json_object))?;
 
             let headers = fs::read_to_string(format!("{}{}.csv",
-                self.import_directory,label))
+                self.import_folder,label))
                 .map_err(|error| format!("{}",error))?;
             let headers = headers.split(";").map(|c| c.split(":")
                 .collect::<Vec<&str>>()[0]).collect::<Vec<&str>>();
@@ -278,7 +290,7 @@ impl Neo4j {
                 counter += 1
             }
 
-            let file_path = format!("{}{}.csv",self.import_directory,label);
+            let file_path = format!("{}{}.csv",self.import_folder,label);
             let mut file = OpenOptions::new().write(true).append(true).create(true).open(&file_path)
                 .map_err(|error| format!("{}",error))?;
             match file.write_all(&content.as_bytes()) {
@@ -290,6 +302,9 @@ impl Neo4j {
     }
 
     pub fn extract_edges(&self,foreign_key_path:&str) -> Result<String, String> {
+        //! Read the JSON file that contains all the couple of foreign keys of the PostgreSQL database <br>
+        //! and save them in the CSV files in the the import folder. <br><br>
+        //! **WARNING** this method need to be used after ```&self.extract_csv_headers(...)```
         let content = fs::read_to_string(foreign_key_path)
             .map_err(|error| format!("{}",error))?;
 
@@ -312,7 +327,7 @@ impl Neo4j {
                 }
             }
 
-            let file_path = format!("{}{}.csv",self.import_directory,file_name);
+            let file_path = format!("{}{}.csv",self.import_folder,file_name);
             let mut file = OpenOptions::new().write(true).append(true).create(true).open(&file_path)
                 .map_err(|error| format!("{}",error))?;
             match file.write_all(&content.as_bytes()) {

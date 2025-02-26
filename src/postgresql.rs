@@ -17,17 +17,21 @@ impl PostgreSQL {
         }
     }
 
-    pub fn execute_query(&self,query:&str) -> Result<String, String> {
+    pub fn execute_query(&self,query:&str,format_csv:bool) -> Result<String, String> {
         //! This method take in input only one PostgreSQL query.<br>
-        //! To run more queries please use ```PostgreSQL.execute_script()```
-        let output = Command::new("psql")
-            .arg("-h").arg(&self.host)
-            .arg("-p").arg(&self.port)
-            .arg("-U").arg(&self.username)
-            .arg("-d").arg(&self.database)
-            .arg("-c").arg(query)
-            .arg("--csv").env("PGPASSWORD", &self.password) 
-            .output()
+        //! To run more queries please use ```PostgreSQL.execute_script()```<br>
+        //! Use the parameter ***format_csv*** to configure the format of the output.
+        let mut command = Command::new("psql");
+        command.args([
+            "-h", &self.host,
+            "-p", &self.port,
+            "-U", &self.username,
+            "-d", &self.database,
+            "-c", query]);
+        if format_csv { command.arg("--csv"); } 
+        command.env("PGPASSWORD", &self.password);
+
+        let output = command.output()
             .expect("Échec de l'exécution de la commande psql");
         if output.status.success() {
             let stdout = String::from_utf8_lossy(&output.stdout);
@@ -70,7 +74,7 @@ impl PostgreSQL {
             Ok(res) => {
                 println!("\nExport data from PostgreSQL - Successfully created the function {}\n",function_name);
                 let query = format!(r"\copy (select {}()) to '{}'",function_name,save_path);
-                match self.execute_query(query.as_str()) {
+                match self.execute_query(query.as_str(),false) {
                     Ok(res) => { return Ok(res); },
                     Err(error) => { return Err(error.to_owned()); }
                 }
