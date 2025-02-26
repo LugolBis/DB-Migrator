@@ -12,7 +12,7 @@ With the simple access of your relationnal database it export the data/meta-data
 
 ## Local usage
 
-1) Check the [Requirements]()
+1) Check the [Requirements](https://github.com/LugolBis/DB-Migrator#requirements)
 2) Configure your Neo4j database
 3) Install **DB-Migrator** :
    ```BashScript
@@ -41,7 +41,7 @@ With the simple access of your relationnal database it export the data/meta-data
 
 <br>
 
-| Operating System | Relationnal Database | Graph Database | Compatibility |
-|:-:|:-:|:-:|:-:|
-| Linux/macOS | PostgreSQL | Neo4j | ✅ |
+| Operating System | Relationnal Database | Graph Database | Plugin | Compatibility |
+|:-:|:-:|:-:|:-:|:-:|
+| Linux/macOS | PostgreSQL | Neo4j **v5.26.0** | APOC **v5.26.2** | ✅ |
 | other~ | other~ | other~| ❔ |
